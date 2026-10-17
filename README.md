@@ -12,12 +12,16 @@ Bendras svoris = kupolas + krepšys + degikliai + kuro talpos + papildoma įrang
 
 Atsarga = keliamoji jėga − bendras svoris (turi būti teigiama).
 
+Jei balionui nurodyta **minimali nusileidimo masė** ir bendras svoris už ją mažesnis
+(per didelis rezervas), rezultatas rodomas raudonai su užrašu „per mažas svoris“ ir parodoma, kiek trūksta.
+
 ## Kaip pridėti ar pašalinti balioną
 
 ### Puslapyje (tik savo įrenginyje)
 
 Skiltyje **Oro balionas → Tvarkyti balionus**:
 
+- **✎** užpildo formą baliono duomenimis – pakeiskite (pvz. įrašykite minimalią nusileidimo masę) ir spauskite **Išsaugoti pakeitimus**;
 - **✕** pašalina balioną;
 - forma **Pridėti balioną** prideda naują. Jei įvesite esamą registraciją, bus pakeisti to baliono duomenys;
 - **Atkurti pašalintus iš failo** grąžina pašalintus balionus iš `balionai.js`.

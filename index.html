@@ -34,7 +34,7 @@
         <button type="button" class="btn-link" id="atkurtiBalionus" hidden></button>
 
         <form id="naujasBalionas" class="add-form" autocomplete="off">
-          <h3>Pridėti balioną</h3>
+          <h3 id="formosAntraste">Pridėti balioną</h3>
           <div class="grid2">
             <label class="field">
               <span>Registracija *</span>
@@ -64,8 +64,13 @@
               <span>MTOM, kg</span>
               <input name="mtomKg" type="number" inputmode="decimal" min="0" step="1" placeholder="neprivaloma">
             </label>
+            <label class="field">
+              <span>Min. nusileidimo masė, kg</span>
+              <input name="minNusileidimoKg" type="number" inputmode="decimal" min="0" step="1" placeholder="neprivaloma">
+            </label>
           </div>
-          <button type="submit" class="btn-secondary">+ Pridėti balioną</button>
+          <button type="submit" class="btn-secondary" id="formosMygtukas">+ Pridėti balioną</button>
+          <button type="button" class="btn-link" id="atsauktiRedagavima" hidden>Atšaukti redagavimą</button>
         </form>
 
         <p class="hint">Pridėti ir pašalinti balionai išsaugomi tik šiame įrenginyje. Kad pakeitimai matytųsi visiems, nukopijuokite sąrašą ir įklijuokite jį į GitHub failą <code>balionai.js</code>.</p>
@@ -141,6 +146,7 @@
       <div class="totals">
         <div><span>Maksimali apskaičiuota keliamoji jėga</span><strong id="keliamoji">–</strong></div>
         <div><span>Paskaičiuotas bendras svoris</span><strong id="bendras">–</strong></div>
+        <div class="min-landing" id="minNusileidimoEil" hidden><span>Minimali nusileidimo masė</span><strong id="minNusileidimo">–</strong></div>
         <div class="margin"><span>Skirtumas (turi būti teigiamas)</span><strong id="skirtumas">–</strong></div>
       </div>
       <ul class="warnings" id="ispejimai"></ul>
@@ -150,7 +156,7 @@
   </main>
 
   <div class="status-bar" id="statusBar" aria-live="polite">
-    <span>Atsarga</span><strong id="statusValue">–</strong>
+    <span id="statusLabel">Atsarga</span><strong id="statusValue">–</strong>
   </div>
 
   <template id="keleivioSablonas">

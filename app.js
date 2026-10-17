@@ -103,6 +103,13 @@
         zym.textContent = "šiame įrenginyje";
         t.appendChild(zym);
       }
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "icon-btn";
+      edit.textContent = "✎";
+      edit.title = "Redaguoti";
+      edit.setAttribute("aria-label", "Redaguoti " + b.registracija);
+      edit.addEventListener("click", () => redaguotiBalioną(b));
       const del = document.createElement("button");
       del.type = "button";
       del.className = "icon-btn";
@@ -110,7 +117,10 @@
       del.title = "Pašalinti";
       del.setAttribute("aria-label", "Pašalinti " + b.registracija);
       del.addEventListener("click", () => pasalintiBalioną(b.registracija));
-      li.append(t, del);
+      const veiksmai = document.createElement("span");
+      veiksmai.className = "actions";
+      veiksmai.append(edit, del);
+      li.append(t, veiksmai);
       ul.appendChild(li);
     });
 
@@ -138,9 +148,34 @@
     skaiciuoti();
   });
 
-  $("naujasBalionas").addEventListener("submit", (e) => {
+  const BALIONO_LAUKAI = ["registracija", "tipas", "turisFt3", "kupolasKg", "krepsysKg", "degikliaiKg", "mtomKg", "minNusileidimoKg"];
+  const forma = $("naujasBalionas");
+  let redaguojamas = null;
+
+  function redaguotiBalioną(b) {
+    redaguojamas = b.registracija;
+    BALIONO_LAUKAI.forEach((k) => {
+      forma.elements[k].value = b[k] === null || b[k] === undefined ? "" : b[k];
+    });
+    $("formosAntraste").textContent = "Redaguoti balioną " + b.registracija;
+    $("formosMygtukas").textContent = "Išsaugoti pakeitimus";
+    $("atsauktiRedagavima").hidden = false;
+    forma.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function baigtiRedagavima() {
+    redaguojamas = null;
+    forma.reset();
+    $("formosAntraste").textContent = "Pridėti balioną";
+    $("formosMygtukas").textContent = "+ Pridėti balioną";
+    $("atsauktiRedagavima").hidden = true;
+  }
+
+  $("atsauktiRedagavima").addEventListener("click", baigtiRedagavima);
+
+  forma.addEventListener("submit", (e) => {
     e.preventDefault();
-    const f = e.target.elements;
+    const f = forma.elements;
     const sk = (el) => skaicius(el);
     const b = {
       registracija: f.registracija.value.trim().toUpperCase(),
@@ -149,28 +184,37 @@
       kupolasKg: sk(f.kupolasKg),
       krepsysKg: sk(f.krepsysKg),
       degikliaiKg: sk(f.degikliaiKg),
-      mtomKg: sk(f.mtomKg)
+      mtomKg: sk(f.mtomKg),
+      minNusileidimoKg: sk(f.minNusileidimoKg)
     };
     if (!b.registracija || !b.tipas || !b.turisFt3 || b.kupolasKg === null || b.krepsysKg === null || b.degikliaiKg === null) {
       alert("Užpildykite visus privalomus laukus (*).");
       return;
     }
-    if (visiBalionai().some((x) => x.registracija === b.registracija) &&
+    if (b.registracija !== redaguojamas &&
+        visiBalionai().some((x) => x.registracija === b.registracija) &&
         !confirm("Balionas " + b.registracija + " jau yra. Pakeisti jo duomenis?")) {
       return;
+    }
+    // Redaguojant pakeitus registraciją, senasis įrašas pašalinamas
+    if (redaguojamas && redaguojamas !== b.registracija) {
+      vartotojo.pridedami = vartotojo.pridedami.filter((x) => x.registracija !== redaguojamas);
+      if (BALIONAI.some((x) => x.registracija === redaguojamas) && !vartotojo.paslepti.includes(redaguojamas)) {
+        vartotojo.paslepti.push(redaguojamas);
+      }
     }
     vartotojo.pridedami = vartotojo.pridedami.filter((x) => x.registracija !== b.registracija);
     vartotojo.pridedami.push(b);
     vartotojo.paslepti = vartotojo.paslepti.filter((r) => r !== b.registracija);
     issaugotiBalionus();
-    e.target.reset();
+    baigtiRedagavima();
     atnaujintiBalionus(b.registracija);
     skaiciuoti();
   });
 
   // balionai.js turinys, kurį galima įklijuoti GitHub'e
   function balionuFailas() {
-    const lauk = ["registracija", "tipas", "turisFt3", "kupolasKg", "krepsysKg", "degikliaiKg", "mtomKg"];
+    const lauk = BALIONO_LAUKAI;
     const blokai = visiBalionai().map((b) =>
       "  {\n" +
       lauk.map((k) => {
@@ -182,7 +226,8 @@
     return (
       "// Oro balionų duomenys. Žr. README.md, kaip pridėti ar pakeisti balioną.\n" +
       "//   registracija, tipas, turisFt3 (ft³), kupolasKg, krepsysKg, degikliaiKg,\n" +
-      "//   mtomKg (maksimali kilimo masė, kg; null – netikrinama)\n\n" +
+      "//   mtomKg (maksimali kilimo masė, kg; null – netikrinama)\n" +
+      "//   minNusileidimoKg (minimali leistina nusileidimo masė, kg; null – netikrinama)\n\n" +
       "const BALIONAI = [\n" + blokai.join(",\n") + "\n];\n"
     );
   }
@@ -228,6 +273,7 @@
       ["Degikliai", kg(b.degikliaiKg)]
     ];
     if (b.mtomKg) eil.push(["MTOM", kg(b.mtomKg)]);
+    if (b.minNusileidimoKg) eil.push(["Min. nusileidimo", kg(b.minNusileidimoKg)]);
     eil.forEach(([k, v]) => {
       const div = document.createElement("div");
       const dt = document.createElement("dt");
@@ -394,15 +440,33 @@
       ispejimai.push("Bendras svoris " + kg(bendras) + " viršija MTOM " + kg(b.mtomKg) + ".");
     }
 
+    // Per didelis rezervas: bendras svoris mažesnis už minimalią nusileidimo masę
+    const minNusileidimo = b && b.minNusileidimoKg ? b.minNusileidimoKg : null;
+    const perLengvas = minNusileidimo !== null && bendras < minNusileidimo;
+    if (perLengvas) {
+      ispejimai.unshift(
+        "Bendras svoris " + kg(bendras) + " mažesnis už minimalią nusileidimo masę " +
+        kg(minNusileidimo) + " – trūksta " + kg(minNusileidimo - bendras) + "."
+      );
+    }
+
     const skirtumas = jega === null ? null : jega - bendras;
 
     $("keliamoji").textContent = kg(jega, 0);
     $("bendras").textContent = kg(bendras);
     $("skirtumas").textContent = skirtumas === null ? "–" : (skirtumas > 0 ? "+" : "") + kg(skirtumas);
 
-    const busena = skirtumas === null ? "" : skirtumas > 0 ? "ok" : "bad";
+    const minEil = $("minNusileidimoEil");
+    minEil.hidden = minNusileidimo === null;
+    minEil.dataset.state = perLengvas ? "bad" : "";
+    $("minNusileidimo").textContent = minNusileidimo === null ? "–"
+      : perLengvas ? kg(minNusileidimo) + " (trūksta " + kg(minNusileidimo - bendras) + ")"
+      : kg(minNusileidimo);
+
+    const busena = skirtumas === null ? "" : skirtumas > 0 && !perLengvas ? "ok" : "bad";
     $("rezultatas").dataset.state = busena;
     $("statusBar").dataset.state = busena;
+    $("statusLabel").textContent = perLengvas ? "Atsarga · per mažas svoris" : "Atsarga";
     $("statusValue").textContent = $("skirtumas").textContent;
 
     const ul = $("ispejimai");

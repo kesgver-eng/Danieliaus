@@ -172,6 +172,7 @@ input:focus, select:focus {
 .saved .icon-btn { width: 36px; height: 36px; font-size: 0.9rem; flex: none; }
 
 .balloon-list li { gap: 8px; border-bottom: 1px solid var(--line); }
+.balloon-list .actions { display: flex; gap: 6px; flex: none; }
 .balloon-list li:last-child { border-bottom: 0; }
 .balloon-list small {
   display: inline-block;
@@ -244,6 +245,15 @@ input:focus, select:focus {
   font-size: 1.05rem;
 }
 .totals .margin strong { font-size: 1.3rem; }
+
+.totals .min-landing[data-state="bad"] {
+  margin: 4px 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--bad-soft);
+  color: var(--bad);
+  font-weight: 600;
+}
 
 .result[data-state="ok"] .margin { background: var(--ok-soft); color: var(--ok); }
 .result[data-state="bad"] .margin { background: var(--bad-soft); color: var(--bad); }

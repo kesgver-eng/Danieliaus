@@ -10,6 +10,8 @@
 //   degikliaiKg  – degiklių svoris, kg
 //   mtomKg       – maksimali kilimo masė iš skrydžio vadovo, kg
 //                  (null – netikrinama)
+//   minNusileidimoKg – minimali leistina nusileidimo masė, kg
+//                  (null – netikrinama)
 
 const BALIONAI = [
   {
@@ -19,7 +21,8 @@ const BALIONAI = [
     kupolasKg: 75,
     krepsysKg: 51,
     degikliaiKg: 24,
-    mtomKg: null
+    mtomKg: null,
+    minNusileidimoKg: null
   },
   {
     registracija: "LY-MBU",
@@ -28,6 +31,7 @@ const BALIONAI = [
     kupolasKg: 105,
     krepsysKg: 60,
     degikliaiKg: 22,
-    mtomKg: null
+    mtomKg: null,
+    minNusileidimoKg: null
   }
 ];
