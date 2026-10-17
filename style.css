@@ -81,6 +81,15 @@ main {
   color: var(--muted);
   margin-bottom: 4px;
 }
+.readout strong {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: var(--input-bg);
+  font-variant-numeric: tabular-nums;
+}
 
 input, select {
   width: 100%;

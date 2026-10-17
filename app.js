@@ -56,6 +56,15 @@
     };
   }
 
+  function nurodyta(v) {
+    return v !== null && v !== undefined && Number.isFinite(v);
+  }
+
+  // Jei anksčiau įrenginyje pridėtam balionui šie laukai neįvesti,
+  // naudojamos Excel lentelės reikšmės (ir rodomas įspėjimas).
+  const NUMATYTA_TALPA_KG = 35;
+  const NUMATYTA_IRANGA_KG = 15;
+
   // --- Balionų sąrašas ---
   // Balionai iš balionai.js + šiame įrenginyje pridėti, atėmus paslėptus.
   // Pridėtas balionas su ta pačia registracija pakeičia esantį faile.
@@ -129,7 +138,8 @@
       }
       const det = document.createElement("span");
       det.className = "balloon-meta";
-      det.textContent = b.turisFt3.toLocaleString("lt-LT") + " ft³ · min. nusileidimo " +
+      det.textContent = b.turisFt3.toLocaleString("lt-LT") + " ft³ · talpa " +
+        (nurodyta(b.talposKg) ? kg(b.talposKg) : "nenurodyta") + " · min. nusileidimo " +
         (b.minNusileidimoKg ? kg(b.minNusileidimoKg) : "nenurodyta");
       t.appendChild(det);
       const edit = document.createElement("button");
@@ -183,7 +193,7 @@
     skaiciuoti();
   });
 
-  const BALIONO_LAUKAI = ["registracija", "tipas", "turisFt3", "kupolasKg", "krepsysKg", "degikliaiKg", "mtomKg", "minNusileidimoKg"];
+  const BALIONO_LAUKAI = ["registracija", "tipas", "turisFt3", "kupolasKg", "krepsysKg", "degikliaiKg", "talposKg", "irangaKg", "mtomKg", "minNusileidimoKg"];
   const forma = $("naujasBalionas");
   let redaguojamas = null;
 
@@ -244,10 +254,13 @@
       kupolasKg: sk(f.kupolasKg),
       krepsysKg: sk(f.krepsysKg),
       degikliaiKg: sk(f.degikliaiKg),
+      talposKg: sk(f.talposKg),
+      irangaKg: sk(f.irangaKg),
       mtomKg: sk(f.mtomKg),
       minNusileidimoKg: sk(f.minNusileidimoKg)
     };
-    if (!b.registracija || !b.tipas || !b.turisFt3 || b.kupolasKg === null || b.krepsysKg === null || b.degikliaiKg === null) {
+    if (!b.registracija || !b.tipas || !b.turisFt3 || b.kupolasKg === null || b.krepsysKg === null ||
+        b.degikliaiKg === null || b.talposKg === null || b.irangaKg === null) {
       alert("Užpildykite visus privalomus laukus (*).");
       return;
     }
@@ -287,6 +300,7 @@
     return (
       "// Oro balionų duomenys. Žr. README.md, kaip pridėti ar pakeisti balioną.\n" +
       "//   registracija, tipas, turisFt3 (ft³), kupolasKg, krepsysKg, degikliaiKg,\n" +
+      "//   talposKg (vienos pilnos kuro talpos svoris, kg), irangaKg (papildoma įranga, kg),\n" +
       "//   mtomKg (maksimali kilimo masė, kg; null – netikrinama)\n" +
       "//   minNusileidimoKg (minimali leistina nusileidimo masė, kg; null – netikrinama)\n\n" +
       "const BALIONAI = [\n" + blokai.join(",\n") + "\n];\n"
@@ -331,7 +345,9 @@
       ["Tūris", b.turisFt3.toLocaleString("lt-LT") + " ft³"],
       ["Kupolas", kg(b.kupolasKg)],
       ["Krepšys", kg(b.krepsysKg)],
-      ["Degikliai", kg(b.degikliaiKg)]
+      ["Degikliai", kg(b.degikliaiKg)],
+      ["Kuro talpa (1 vnt.)", nurodyta(b.talposKg) ? kg(b.talposKg) : "nenurodyta"],
+      ["Papildoma įranga", nurodyta(b.irangaKg) ? kg(b.irangaKg) : "nenurodyta"]
     ];
     eil.push(["Min. nusileidimo masė", b.minNusileidimoKg ? kg(b.minNusileidimoKg) : "nenurodyta"]);
     if (b.mtomKg) eil.push(["MTOM", kg(b.mtomKg)]);
@@ -425,7 +441,7 @@
   });
 
   // --- Skaičiavimas ---
-  const ivestys = ["temp", "qnh", "kupoloTemp", "aukstis", "talpuKiekis", "talposSvoris", "iranga", "pilotoSvoris"];
+  const ivestys = ["temp", "qnh", "kupoloTemp", "aukstis", "talpuKiekis", "pilotoSvoris"];
 
   function skaiciuoti() {
     const b = pasirinktasBalionas();
@@ -444,15 +460,32 @@
     });
     $("igulaViso").textContent = kg(igula);
 
-    const talpos = (skaicius($("talpuKiekis")) || 0) * (skaicius($("talposSvoris")) || 0);
-    const iranga = skaicius($("iranga")) || 0;
+    // Talpos svoris ir įranga imami iš baliono duomenų, talpų kiekis – iš formos
+    const talpuKiekis = skaicius($("talpuKiekis")) || 0;
+    let talposKg = 0;
+    let iranga = 0;
+    if (b) {
+      talposKg = nurodyta(b.talposKg) ? b.talposKg : NUMATYTA_TALPA_KG;
+      iranga = nurodyta(b.irangaKg) ? b.irangaKg : NUMATYTA_IRANGA_KG;
+      if (!nurodyta(b.talposKg) || !nurodyta(b.irangaKg)) {
+        ispejimai.push(
+          "Balionui " + b.registracija + " nenurodytas kuro talpos svoris ar papildoma įranga – " +
+          "naudojama " + kg(talposKg) + " / " + kg(iranga) + ". Papildykite „Tvarkyti balionus“."
+        );
+      }
+    }
+    const talpos = talpuKiekis * talposKg;
+    $("talpuViso").textContent = b ? kg(talpos) : "–";
+    $("talposInfo").textContent = b
+      ? "Vienos pilnos talpos svoris – " + kg(talposKg) + " (iš baliono " + b.registracija + " duomenų)."
+      : "";
 
     const eilutes = b
       ? [
           ["Kupolas", b.kupolasKg],
           ["Krepšys", b.krepsysKg],
           ["Degikliai", b.degikliaiKg],
-          ["Kuro talpos (" + (skaicius($("talpuKiekis")) || 0) + " vnt., pilnos)", talpos],
+          ["Kuro talpos (" + talpuKiekis + " × " + kg(talposKg) + ")", talpos],
           ["Papildoma įranga", iranga],
           ["Skrydžio įgula", igula]
         ]

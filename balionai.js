@@ -8,6 +8,8 @@
 //   kupolasKg    – kupolo svoris, kg
 //   krepsysKg    – krepšio svoris, kg
 //   degikliaiKg  – degiklių svoris, kg
+//   talposKg     – vienos pilnos kuro talpos svoris, kg
+//   irangaKg     – papildoma įranga, kg
 //   mtomKg       – maksimali kilimo masė iš skrydžio vadovo, kg
 //                  (null – netikrinama)
 //   minNusileidimoKg – minimali leistina nusileidimo masė, kg
@@ -21,6 +23,8 @@ const BALIONAI = [
     kupolasKg: 75,
     krepsysKg: 51,
     degikliaiKg: 24,
+    talposKg: 35,
+    irangaKg: 15,
     mtomKg: null,
     minNusileidimoKg: null
   },
@@ -31,6 +35,8 @@ const BALIONAI = [
     kupolasKg: 105,
     krepsysKg: 60,
     degikliaiKg: 22,
+    talposKg: 35,
+    irangaKg: 15,
     mtomKg: null,
     minNusileidimoKg: null
   }

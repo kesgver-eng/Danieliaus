@@ -2,13 +2,16 @@
 
 Oro baliono keliamosios galios ir bendro svorio skaičiuoklė (pagal Sauliaus Jezepčiko Excel lentelę).
 
-**Adresas:** `https://<github-vartotojas>.github.io/Danieliaus/`
+**Adresas:** https://kesgver-eng.github.io/Danieliaus/
 
 ## Skaičiavimas
 
 Keliamoji jėga (kg) = V(ft³) × 0,0283168 × P(hPa) / 2,87 × (1/T_oro − 1/T_kupolo), kur T kelvinais.
 
 Bendras svoris = kupolas + krepšys + degikliai + kuro talpos + papildoma įranga + visa įgula.
+
+Vienos pilnos kuro talpos svoris ir papildoma įranga nurodomi kiekvienam balionui atskirai
+(baliono duomenyse), o kuro talpų kiekis įvedamas skiltyje **Kuras** prieš kiekvieną skrydį.
 
 Atsarga = keliamoji jėga − bendras svoris (turi būti teigiama).
 

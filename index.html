@@ -63,6 +63,14 @@
               <input name="degikliaiKg" type="number" inputmode="decimal" min="0" step="0.1" required>
             </label>
             <label class="field">
+              <span>Vienos pilnos kuro talpos svoris, kg *</span>
+              <input name="talposKg" type="number" inputmode="decimal" min="0" step="0.5" required>
+            </label>
+            <label class="field">
+              <span>Papildoma įranga, kg *</span>
+              <input name="irangaKg" type="number" inputmode="decimal" min="0" step="0.5" required>
+            </label>
+            <label class="field">
               <span>MTOM, kg</span>
               <input name="mtomKg" type="number" inputmode="decimal" min="0" step="1" placeholder="neprivaloma">
             </label>
@@ -128,21 +136,18 @@
     </section>
 
     <section class="card">
-      <h2>Kuras ir įranga</h2>
+      <h2>Kuras</h2>
       <div class="grid2">
         <label class="field">
           <span>Kuro talpų, vnt.</span>
           <input id="talpuKiekis" type="number" inputmode="numeric" min="0" step="1" value="3">
         </label>
-        <label class="field">
-          <span>Vienos pilnos talpos svoris, kg</span>
-          <input id="talposSvoris" type="number" inputmode="decimal" min="0" step="0.5" value="35">
-        </label>
-        <label class="field">
-          <span>Papildoma įranga, kg</span>
-          <input id="iranga" type="number" inputmode="decimal" min="0" step="1" value="15">
-        </label>
+        <div class="field readout">
+          <span>Talpos iš viso</span>
+          <strong id="talpuViso">–</strong>
+        </div>
       </div>
+      <p class="hint" id="talposInfo"></p>
     </section>
 
     <section class="card result" id="rezultatas">
