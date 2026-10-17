@@ -21,9 +21,9 @@ Jei balionui nurodyta **minimali nusileidimo masė** ir bendras svoris už ją m
 
 Skiltyje **Oro balionas → Tvarkyti balionus**:
 
-- **✎** užpildo formą baliono duomenimis – pakeiskite (pvz. įrašykite minimalią nusileidimo masę) ir spauskite **Išsaugoti pakeitimus**;
-- **✕** pašalina balioną;
-- forma **Pridėti balioną** prideda naują. Jei įvesite esamą registraciją, bus pakeisti to baliono duomenys;
+- sąraše **Pasirinkite balioną redagavimui** pasirinkite balioną – jo duomenys atsiras formoje; pakeiskite (pvz. įrašykite minimalią nusileidimo masę) ir spauskite **Išsaugoti pakeitimus**;
+- pasirinkus **+ Naujas balionas**, forma išvaloma naujam balionui;
+- **Pašalinti šį balioną** arba **✕** sąraše „Visi balionai“ pašalina balioną (**✎** – atidaro redagavimui);
 - **Atkurti pašalintus iš failo** grąžina pašalintus balionus iš `balionai.js`.
 
 Šie pakeitimai išsaugomi tik tame telefone ar kompiuteryje.

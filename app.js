@@ -63,11 +63,16 @@
   const vartotojo = skaityti(BALIONU_RAKTAS, { pridedami: [], paslepti: [] });
 
   function visiBalionai() {
-    const savi = vartotojo.pridedami.map((b) => b.registracija);
-    return BALIONAI
-      .filter((b) => !vartotojo.paslepti.includes(b.registracija) && !savi.includes(b.registracija))
-      .map((b) => Object.assign({ savas: false }, b))
-      .concat(vartotojo.pridedami.map((b) => Object.assign({ savas: true }, b)));
+    const savas = (reg) => vartotojo.pridedami.find((b) => b.registracija === reg);
+    const isFailo = BALIONAI
+      .filter((b) => !vartotojo.paslepti.includes(b.registracija) || savas(b.registracija))
+      .map((b) => savas(b.registracija)
+        ? Object.assign({ savas: true }, savas(b.registracija))
+        : Object.assign({ savas: false }, b));
+    const nauji = vartotojo.pridedami
+      .filter((b) => !BALIONAI.some((x) => x.registracija === b.registracija))
+      .map((b) => Object.assign({ savas: true }, b));
+    return isFailo.concat(nauji);
   }
 
   function pasirinktasBalionas() {
@@ -86,30 +91,54 @@
     visi.forEach((b) => {
       const o = document.createElement("option");
       o.value = b.registracija;
-      o.textContent = b.registracija + " · " + b.tipas;
+      o.textContent = balionoPavadinimas(b);
       balionoSelect.appendChild(o);
     });
     if (visi.some((b) => b.registracija === norimas)) balionoSelect.value = norimas;
     balionoSelect.disabled = visi.length === 0;
 
+    // Redagavimo sąrašas: „Naujas balionas“ + visi esami
+    const ed = $("redaguojamasBalionas");
+    ed.innerHTML = "";
+    const naujas = document.createElement("option");
+    naujas.value = "";
+    naujas.textContent = "+ Naujas balionas";
+    ed.appendChild(naujas);
+    visi.forEach((b) => {
+      const o = document.createElement("option");
+      o.value = b.registracija;
+      o.textContent = balionoPavadinimas(b);
+      ed.appendChild(o);
+    });
+    ed.value = redaguojamas && visi.some((b) => b.registracija === redaguojamas) ? redaguojamas : "";
+
     const ul = $("balionuSarasas");
     ul.innerHTML = "";
     visi.forEach((b) => {
       const li = document.createElement("li");
+      if (b.registracija === redaguojamas) li.className = "editing";
       const t = document.createElement("span");
-      t.textContent = b.registracija + " · " + b.tipas + " · " + b.turisFt3.toLocaleString("lt-LT") + " ft³";
+      t.className = "balloon-name";
+      const pav = document.createElement("strong");
+      pav.textContent = b.registracija + " · " + b.tipas;
+      t.appendChild(pav);
       if (b.savas) {
         const zym = document.createElement("small");
         zym.textContent = "šiame įrenginyje";
         t.appendChild(zym);
       }
+      const det = document.createElement("span");
+      det.className = "balloon-meta";
+      det.textContent = b.turisFt3.toLocaleString("lt-LT") + " ft³ · min. nusileidimo " +
+        (b.minNusileidimoKg ? kg(b.minNusileidimoKg) : "nenurodyta");
+      t.appendChild(det);
       const edit = document.createElement("button");
       edit.type = "button";
       edit.className = "icon-btn";
       edit.textContent = "✎";
       edit.title = "Redaguoti";
       edit.setAttribute("aria-label", "Redaguoti " + b.registracija);
-      edit.addEventListener("click", () => redaguotiBalioną(b));
+      edit.addEventListener("click", () => redaguotiBalioną(b, true));
       const del = document.createElement("button");
       del.type = "button";
       del.className = "icon-btn";
@@ -130,6 +159,11 @@
     atkurti.textContent = "Atkurti pašalintus iš failo (" + paslepta + ")";
   }
 
+  function balionoPavadinimas(b) {
+    return b.registracija + " · " + b.tipas +
+      (b.minNusileidimoKg ? " · min. " + kg(b.minNusileidimoKg) : "");
+  }
+
   function pasalintiBalioną(reg) {
     if (!confirm("Pašalinti balioną " + reg + "?")) return;
     vartotojo.pridedami = vartotojo.pridedami.filter((b) => b.registracija !== reg);
@@ -137,6 +171,7 @@
       vartotojo.paslepti.push(reg);
     }
     issaugotiBalionus();
+    if (redaguojamas === reg) baigtiRedagavima();
     atnaujintiBalionus();
     skaiciuoti();
   }
@@ -152,26 +187,51 @@
   const forma = $("naujasBalionas");
   let redaguojamas = null;
 
-  function redaguotiBalioną(b) {
+  function redaguotiBalioną(b, slinkti) {
     redaguojamas = b.registracija;
     BALIONO_LAUKAI.forEach((k) => {
       forma.elements[k].value = b[k] === null || b[k] === undefined ? "" : b[k];
     });
-    $("formosAntraste").textContent = "Redaguoti balioną " + b.registracija;
+    $("formosAntraste").textContent = "Redaguojamas " + b.registracija;
     $("formosMygtukas").textContent = "Išsaugoti pakeitimus";
-    $("atsauktiRedagavima").hidden = false;
-    forma.scrollIntoView({ behavior: "smooth", block: "start" });
+    $("pasalintiRedaguojama").hidden = false;
+    $("issaugota").hidden = true;
+    atnaujintiBalionus();
+    if (slinkti) forma.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function baigtiRedagavima() {
     redaguojamas = null;
-    forma.reset();
-    $("formosAntraste").textContent = "Pridėti balioną";
+    BALIONO_LAUKAI.forEach((k) => (forma.elements[k].value = ""));
+    $("formosAntraste").textContent = "Naujas balionas";
     $("formosMygtukas").textContent = "+ Pridėti balioną";
-    $("atsauktiRedagavima").hidden = true;
+    $("pasalintiRedaguojama").hidden = true;
+    $("issaugota").hidden = true;
+    $("redaguojamasBalionas").value = "";
   }
 
-  $("atsauktiRedagavima").addEventListener("click", baigtiRedagavima);
+  $("redaguojamasBalionas").addEventListener("change", (e) => {
+    const b = visiBalionai().find((x) => x.registracija === e.target.value);
+    if (b) redaguotiBalioną(b);
+    else {
+      baigtiRedagavima();
+      atnaujintiBalionus();
+      forma.elements.registracija.focus();
+    }
+  });
+
+  forma.addEventListener("input", () => ($("issaugota").hidden = true));
+
+  $("pasalintiRedaguojama").addEventListener("click", () => {
+    if (redaguojamas) pasalintiBalioną(redaguojamas);
+  });
+
+  // Atidarius „Tvarkyti balionus“, iškart rodomas šiuo metu pasirinktas balionas
+  $("balionuTvarkymas").addEventListener("toggle", (e) => {
+    if (!e.target.open) return;
+    const b = pasirinktasBalionas();
+    if (b && !redaguojamas) redaguotiBalioną(b);
+  });
 
   forma.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -207,8 +267,9 @@
     vartotojo.pridedami.push(b);
     vartotojo.paslepti = vartotojo.paslepti.filter((r) => r !== b.registracija);
     issaugotiBalionus();
-    baigtiRedagavima();
     atnaujintiBalionus(b.registracija);
+    redaguotiBalioną(visiBalionai().find((x) => x.registracija === b.registracija));
+    $("issaugota").hidden = false;
     skaiciuoti();
   });
 
@@ -272,8 +333,8 @@
       ["Krepšys", kg(b.krepsysKg)],
       ["Degikliai", kg(b.degikliaiKg)]
     ];
+    eil.push(["Min. nusileidimo masė", b.minNusileidimoKg ? kg(b.minNusileidimoKg) : "nenurodyta"]);
     if (b.mtomKg) eil.push(["MTOM", kg(b.mtomKg)]);
-    if (b.minNusileidimoKg) eil.push(["Min. nusileidimo", kg(b.minNusileidimoKg)]);
     eil.forEach(([k, v]) => {
       const div = document.createElement("div");
       const dt = document.createElement("dt");

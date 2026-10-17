@@ -184,15 +184,27 @@ input:focus, select:focus {
   font-size: 0.72rem;
 }
 
+.balloon-list li { padding: 6px 4px; border-radius: 8px; }
+.balloon-list li.editing { background: var(--accent-soft); }
+.balloon-name { min-width: 0; }
+.balloon-name strong { font-weight: 600; }
+.balloon-meta { display: block; font-size: 0.82rem; color: var(--muted); }
+
 .add-form {
   margin-top: 14px;
   padding: 14px;
   border-radius: 10px;
   background: var(--input-bg);
 }
-.add-form h3 { margin: 0 0 10px; font-size: 0.95rem; }
-.add-form input { background: var(--surface); }
+.add-form h3 { margin: 14px 0 10px; font-size: 0.95rem; }
+.add-form input, .add-form select { background: var(--surface); }
 .add-form .btn-secondary { margin-top: 12px; }
+.editor-pick select { font-weight: 600; }
+
+.list-title { margin: 18px 0 4px; font-size: 0.9rem; color: var(--muted); font-weight: 600; }
+
+.saved-note { margin: 8px 0 0; color: var(--ok); font-weight: 600; text-align: center; }
+.btn-link.danger { color: var(--bad); }
 
 .btn-link {
   display: block;

@@ -30,11 +30,13 @@
 
       <details class="saved" id="balionuTvarkymas">
         <summary>Tvarkyti balionus</summary>
-        <ul class="balloon-list" id="balionuSarasas"></ul>
-        <button type="button" class="btn-link" id="atkurtiBalionus" hidden></button>
 
         <form id="naujasBalionas" class="add-form" autocomplete="off">
-          <h3 id="formosAntraste">Pridėti balioną</h3>
+          <label class="field editor-pick">
+            <span>Pasirinkite balioną redagavimui</span>
+            <select id="redaguojamasBalionas"></select>
+          </label>
+          <h3 id="formosAntraste">Naujas balionas</h3>
           <div class="grid2">
             <label class="field">
               <span>Registracija *</span>
@@ -70,8 +72,13 @@
             </label>
           </div>
           <button type="submit" class="btn-secondary" id="formosMygtukas">+ Pridėti balioną</button>
-          <button type="button" class="btn-link" id="atsauktiRedagavima" hidden>Atšaukti redagavimą</button>
+          <p class="saved-note" id="issaugota" hidden>✓ Išsaugota</p>
+          <button type="button" class="btn-link danger" id="pasalintiRedaguojama" hidden>Pašalinti šį balioną</button>
         </form>
+
+        <h3 class="list-title">Visi balionai</h3>
+        <ul class="balloon-list" id="balionuSarasas"></ul>
+        <button type="button" class="btn-link" id="atkurtiBalionus" hidden></button>
 
         <p class="hint">Pridėti ir pašalinti balionai išsaugomi tik šiame įrenginyje. Kad pakeitimai matytųsi visiems, nukopijuokite sąrašą ir įklijuokite jį į GitHub failą <code>balionai.js</code>.</p>
         <button type="button" class="btn-link" id="kopijuotiBalionus">Kopijuoti sąrašą failui balionai.js</button>
