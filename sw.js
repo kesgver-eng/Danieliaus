@@ -1,6 +1,6 @@
 // Leidžia skaičiuoklei veikti be interneto.
 // Pakeitus failus, padidinkite versiją, kad telefonai gautų naujus.
-const CACHE = "oro-balionas-v1";
+const CACHE = "oro-balionas-v2";
 const FAILAI = [
   "./",
   "index.html",
@@ -14,7 +14,12 @@ const FAILAI = [
 ];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FAILAI)));
+  // cache: "reload" – imama tiesiai iš serverio, ne iš naršyklės talpyklos
+  e.waitUntil(
+    caches.open(CACHE).then((c) =>
+      c.addAll(FAILAI.map((f) => new Request(f, { cache: "reload" })))
+    )
+  );
   self.skipWaiting();
 });
 
@@ -27,15 +32,20 @@ self.addEventListener("activate", (e) => {
   self.clients.claim();
 });
 
-// Pirmiausia bandoma internetu (kad matytųsi naujausi duomenys),
+// Pirmiausia bandoma internetu (kad matytųsi naujausi failai),
 // nepavykus – imama iš išsaugotos kopijos.
+// cache: "no-cache" – kaskart patikrinama serveryje, ar failas nepasikeitė,
+// kitaip GitHub Pages iki 10 min. rodytų seną versiją.
 self.addEventListener("fetch", (e) => {
-  if (e.request.method !== "GET") return;
+  const url = new URL(e.request.url);
+  if (e.request.method !== "GET" || url.origin !== self.location.origin) return;
   e.respondWith(
-    fetch(e.request)
+    fetch(e.request.url, { cache: "no-cache", credentials: "same-origin" })
       .then((res) => {
-        const kopija = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, kopija));
+        if (res.ok) {
+          const kopija = res.clone();
+          caches.open(CACHE).then((c) => c.put(e.request, kopija));
+        }
         return res;
       })
       .catch(() => caches.match(e.request, { ignoreSearch: true }))
