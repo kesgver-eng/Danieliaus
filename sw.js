@@ -1,6 +1,6 @@
 // Leidžia skaičiuoklei veikti be interneto.
 // Pakeitus failus, padidinkite versiją, kad telefonai gautų naujus.
-const CACHE = "oro-balionas-v5";
+const CACHE = "oro-balionas-v6";
 const FAILAI = [
   "./",
   "index.html",

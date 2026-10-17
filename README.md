@@ -10,8 +10,8 @@ Keliamoji jėga (kg) = V(ft³) × 0,0283168 × P(hPa) / 2,87 × (1/T_oro − 1/T
 
 Bendras svoris = kupolas + krepšys + degikliai + kuro talpos + papildoma įranga + visa įgula.
 
-Vienos pilnos kuro talpos svoris ir papildoma įranga nurodomi kiekvienam balionui atskirai
-(baliono duomenyse), o kuro talpų kiekis įvedamas skiltyje **Kuras** prieš kiekvieną skrydį.
+Kuro talpų kiekis, vienos pilnos talpos svoris ir papildoma įranga nurodomi kiekvienam balionui
+atskirai. Jie rodomi baliono duomenyse pagrindiniame lange, o keičiami per **Tvarkyti balionus**.
 
 Atsarga = keliamoji jėga − bendras svoris (turi būti teigiama).
 
