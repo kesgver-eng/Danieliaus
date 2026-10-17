@@ -27,6 +27,50 @@
         <select id="balionas"></select>
       </label>
       <dl class="facts" id="balionoDuomenys"></dl>
+
+      <details class="saved" id="balionuTvarkymas">
+        <summary>Tvarkyti balionus</summary>
+        <ul class="balloon-list" id="balionuSarasas"></ul>
+        <button type="button" class="btn-link" id="atkurtiBalionus" hidden></button>
+
+        <form id="naujasBalionas" class="add-form" autocomplete="off">
+          <h3>Pridėti balioną</h3>
+          <div class="grid2">
+            <label class="field">
+              <span>Registracija *</span>
+              <input name="registracija" type="text" required placeholder="LY-XXX">
+            </label>
+            <label class="field">
+              <span>Tipas *</span>
+              <input name="tipas" type="text" required placeholder="BB22XR">
+            </label>
+            <label class="field">
+              <span>Tūris, ft³ *</span>
+              <input name="turisFt3" type="number" inputmode="numeric" min="1" step="1" required>
+            </label>
+            <label class="field">
+              <span>Kupolo svoris, kg *</span>
+              <input name="kupolasKg" type="number" inputmode="decimal" min="0" step="0.1" required>
+            </label>
+            <label class="field">
+              <span>Krepšio svoris, kg *</span>
+              <input name="krepsysKg" type="number" inputmode="decimal" min="0" step="0.1" required>
+            </label>
+            <label class="field">
+              <span>Degiklių svoris, kg *</span>
+              <input name="degikliaiKg" type="number" inputmode="decimal" min="0" step="0.1" required>
+            </label>
+            <label class="field">
+              <span>MTOM, kg</span>
+              <input name="mtomKg" type="number" inputmode="decimal" min="0" step="1" placeholder="neprivaloma">
+            </label>
+          </div>
+          <button type="submit" class="btn-secondary">+ Pridėti balioną</button>
+        </form>
+
+        <p class="hint">Pridėti ir pašalinti balionai išsaugomi tik šiame įrenginyje. Kad pakeitimai matytųsi visiems, nukopijuokite sąrašą ir įklijuokite jį į GitHub failą <code>balionai.js</code>.</p>
+        <button type="button" class="btn-link" id="kopijuotiBalionus">Kopijuoti sąrašą failui balionai.js</button>
+      </details>
     </section>
 
     <section class="card">

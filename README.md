@@ -12,11 +12,25 @@ Bendras svoris = kupolas + krepšys + degikliai + kuro talpos + papildoma įrang
 
 Atsarga = keliamoji jėga − bendras svoris (turi būti teigiama).
 
-## Kaip pridėti ar pakeisti balioną
+## Kaip pridėti ar pašalinti balioną
 
-1. Atidarykite `balionai.js` ir paspauskite ✏️ (Edit).
-2. Nukopijuokite vieną `{ ... }` bloką, pakeiskite reikšmes, tarp blokų palikite kablelį.
+### Puslapyje (tik savo įrenginyje)
+
+Skiltyje **Oro balionas → Tvarkyti balionus**:
+
+- **✕** pašalina balioną;
+- forma **Pridėti balioną** prideda naują. Jei įvesite esamą registraciją, bus pakeisti to baliono duomenys;
+- **Atkurti pašalintus iš failo** grąžina pašalintus balionus iš `balionai.js`.
+
+Šie pakeitimai išsaugomi tik tame telefone ar kompiuteryje.
+
+### Visiems naudotojams (GitHub'e)
+
+1. Puslapyje susitvarkykite balionų sąrašą ir paspauskite **Kopijuoti sąrašą failui balionai.js**.
+2. GitHub'e atidarykite `balionai.js` → ✏️ (Edit) → pažymėkite visą tekstą (Ctrl+A) → įklijuokite (Ctrl+V).
 3. Paspauskite **Commit changes**. Svetainė atsinaujins per 1–2 min.
+
+Galima ir rankiniu būdu: `balionai.js` faile nukopijuokite vieną `{ ... }` bloką, pakeiskite reikšmes ir tarp blokų palikite kablelį.
 
 Pakeitus kitus failus, `sw.js` faile padidinkite `CACHE` versiją (pvz. `v1` → `v2`), kad telefonai gautų naujus failus.
 

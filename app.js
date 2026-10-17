@@ -4,6 +4,7 @@
   const FT3_I_M3 = 0.0283168;
   const BUSENOS_RAKTAS = "oroBalionas.busena.v1";
   const PILOTU_RAKTAS = "oroBalionas.pilotai.v1";
+  const BALIONU_RAKTAS = "oroBalionas.balionai.v1";
 
   const $ = (id) => document.getElementById(id);
 
@@ -56,16 +57,163 @@
   }
 
   // --- Balionų sąrašas ---
+  // Balionai iš balionai.js + šiame įrenginyje pridėti, atėmus paslėptus.
+  // Pridėtas balionas su ta pačia registracija pakeičia esantį faile.
   const balionoSelect = $("balionas");
-  BALIONAI.forEach((b, i) => {
-    const o = document.createElement("option");
-    o.value = b.registracija;
-    o.textContent = b.registracija + " · " + b.tipas;
-    balionoSelect.appendChild(o);
-  });
+  const vartotojo = skaityti(BALIONU_RAKTAS, { pridedami: [], paslepti: [] });
+
+  function visiBalionai() {
+    const savi = vartotojo.pridedami.map((b) => b.registracija);
+    return BALIONAI
+      .filter((b) => !vartotojo.paslepti.includes(b.registracija) && !savi.includes(b.registracija))
+      .map((b) => Object.assign({ savas: false }, b))
+      .concat(vartotojo.pridedami.map((b) => Object.assign({ savas: true }, b)));
+  }
 
   function pasirinktasBalionas() {
-    return BALIONAI.find((b) => b.registracija === balionoSelect.value) || null;
+    return visiBalionai().find((b) => b.registracija === balionoSelect.value) || null;
+  }
+
+  function issaugotiBalionus() {
+    rasyti(BALIONU_RAKTAS, vartotojo);
+  }
+
+  function atnaujintiBalionus(pasirinkti) {
+    const visi = visiBalionai();
+    const norimas = pasirinkti !== undefined ? pasirinkti : balionoSelect.value;
+
+    balionoSelect.innerHTML = "";
+    visi.forEach((b) => {
+      const o = document.createElement("option");
+      o.value = b.registracija;
+      o.textContent = b.registracija + " · " + b.tipas;
+      balionoSelect.appendChild(o);
+    });
+    if (visi.some((b) => b.registracija === norimas)) balionoSelect.value = norimas;
+    balionoSelect.disabled = visi.length === 0;
+
+    const ul = $("balionuSarasas");
+    ul.innerHTML = "";
+    visi.forEach((b) => {
+      const li = document.createElement("li");
+      const t = document.createElement("span");
+      t.textContent = b.registracija + " · " + b.tipas + " · " + b.turisFt3.toLocaleString("lt-LT") + " ft³";
+      if (b.savas) {
+        const zym = document.createElement("small");
+        zym.textContent = "šiame įrenginyje";
+        t.appendChild(zym);
+      }
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "icon-btn";
+      del.textContent = "✕";
+      del.title = "Pašalinti";
+      del.setAttribute("aria-label", "Pašalinti " + b.registracija);
+      del.addEventListener("click", () => pasalintiBalioną(b.registracija));
+      li.append(t, del);
+      ul.appendChild(li);
+    });
+
+    const paslepta = vartotojo.paslepti.filter((r) => BALIONAI.some((b) => b.registracija === r)).length;
+    const atkurti = $("atkurtiBalionus");
+    atkurti.hidden = paslepta === 0;
+    atkurti.textContent = "Atkurti pašalintus iš failo (" + paslepta + ")";
+  }
+
+  function pasalintiBalioną(reg) {
+    if (!confirm("Pašalinti balioną " + reg + "?")) return;
+    vartotojo.pridedami = vartotojo.pridedami.filter((b) => b.registracija !== reg);
+    if (BALIONAI.some((b) => b.registracija === reg) && !vartotojo.paslepti.includes(reg)) {
+      vartotojo.paslepti.push(reg);
+    }
+    issaugotiBalionus();
+    atnaujintiBalionus();
+    skaiciuoti();
+  }
+
+  $("atkurtiBalionus").addEventListener("click", () => {
+    vartotojo.paslepti = [];
+    issaugotiBalionus();
+    atnaujintiBalionus();
+    skaiciuoti();
+  });
+
+  $("naujasBalionas").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = e.target.elements;
+    const sk = (el) => skaicius(el);
+    const b = {
+      registracija: f.registracija.value.trim().toUpperCase(),
+      tipas: f.tipas.value.trim(),
+      turisFt3: sk(f.turisFt3),
+      kupolasKg: sk(f.kupolasKg),
+      krepsysKg: sk(f.krepsysKg),
+      degikliaiKg: sk(f.degikliaiKg),
+      mtomKg: sk(f.mtomKg)
+    };
+    if (!b.registracija || !b.tipas || !b.turisFt3 || b.kupolasKg === null || b.krepsysKg === null || b.degikliaiKg === null) {
+      alert("Užpildykite visus privalomus laukus (*).");
+      return;
+    }
+    if (visiBalionai().some((x) => x.registracija === b.registracija) &&
+        !confirm("Balionas " + b.registracija + " jau yra. Pakeisti jo duomenis?")) {
+      return;
+    }
+    vartotojo.pridedami = vartotojo.pridedami.filter((x) => x.registracija !== b.registracija);
+    vartotojo.pridedami.push(b);
+    vartotojo.paslepti = vartotojo.paslepti.filter((r) => r !== b.registracija);
+    issaugotiBalionus();
+    e.target.reset();
+    atnaujintiBalionus(b.registracija);
+    skaiciuoti();
+  });
+
+  // balionai.js turinys, kurį galima įklijuoti GitHub'e
+  function balionuFailas() {
+    const lauk = ["registracija", "tipas", "turisFt3", "kupolasKg", "krepsysKg", "degikliaiKg", "mtomKg"];
+    const blokai = visiBalionai().map((b) =>
+      "  {\n" +
+      lauk.map((k) => {
+        const v = b[k] === undefined ? null : b[k];
+        return "    " + k + ": " + (typeof v === "string" ? JSON.stringify(v) : String(v));
+      }).join(",\n") +
+      "\n  }"
+    );
+    return (
+      "// Oro balionų duomenys. Žr. README.md, kaip pridėti ar pakeisti balioną.\n" +
+      "//   registracija, tipas, turisFt3 (ft³), kupolasKg, krepsysKg, degikliaiKg,\n" +
+      "//   mtomKg (maksimali kilimo masė, kg; null – netikrinama)\n\n" +
+      "const BALIONAI = [\n" + blokai.join(",\n") + "\n];\n"
+    );
+  }
+
+  $("kopijuotiBalionus").addEventListener("click", () => {
+    const tekstas = balionuFailas();
+    const mygtukas = $("kopijuotiBalionus");
+    const pavyko = () => {
+      mygtukas.textContent = "✓ Nukopijuota – įklijuokite į balionai.js";
+      setTimeout(() => (mygtukas.textContent = "Kopijuoti sąrašą failui balionai.js"), 3000);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(tekstas).then(pavyko, () => rodytiTeksta(tekstas));
+    } else {
+      rodytiTeksta(tekstas);
+    }
+  });
+
+  function rodytiTeksta(tekstas) {
+    let ta = $("balionuKodas");
+    if (!ta) {
+      ta = document.createElement("textarea");
+      ta.id = "balionuKodas";
+      ta.className = "code-box";
+      ta.readOnly = true;
+      $("kopijuotiBalionus").after(ta);
+    }
+    ta.value = tekstas;
+    ta.rows = Math.min(20, tekstas.split("\n").length);
+    ta.focus();
+    ta.select();
   }
 
   function rodytiBalionoDuomenis(b) {
@@ -177,6 +325,7 @@
     rodytiBalionoDuomenis(b);
 
     const ispejimai = [];
+    if (!b) ispejimai.push("Pridėkite bent vieną balioną („Tvarkyti balionus“).");
 
     const piloto = skaicius($("pilotoSvoris"));
     if (piloto === null) ispejimai.push("Neįvestas piloto svoris.");
@@ -282,11 +431,12 @@
 
   function atkurtiBusena() {
     const b = skaityti(BUSENOS_RAKTAS, null);
+    const visi = visiBalionai();
     if (!b) {
-      balionoSelect.value = BALIONAI.length > 1 ? BALIONAI[1].registracija : (BALIONAI[0] || {}).registracija;
+      if (visi.length > 1) balionoSelect.value = visi[1].registracija;
       return;
     }
-    if (BALIONAI.some((x) => x.registracija === b.balionas)) balionoSelect.value = b.balionas;
+    if (visi.some((x) => x.registracija === b.balionas)) balionoSelect.value = b.balionas;
     ivestys.forEach((id) => {
       if (b[id] !== undefined) $(id).value = b[id];
     });
@@ -296,10 +446,12 @@
 
   // --- Įvykiai ---
   document.querySelector("main").addEventListener("input", (e) => {
-    if (e.target.id !== "pilotoVardas") skaiciuoti();
+    if (e.target.id === "pilotoVardas" || e.target.closest("#naujasBalionas")) return;
+    skaiciuoti();
   });
   balionoSelect.addEventListener("change", skaiciuoti);
 
+  atnaujintiBalionus();
   atnaujintiPilotus();
   atkurtiBusena();
   skaiciuoti();
