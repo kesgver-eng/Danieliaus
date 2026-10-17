@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Oro baliono masė</title>
+  <meta name="description" content="Oro baliono keliamosios galios ir masės rezervo skaičiuoklė">
+  <meta name="theme-color" content="#c2410c">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Balionas">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Oro baliono masės rezervas</h1>
+    <p class="sub">Keliamosios galios ir bendro svorio skaičiuoklė</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Oro balionas</h2>
+      <label class="field">
+        <span>Registracija</span>
+        <select id="balionas"></select>
+      </label>
+      <dl class="facts" id="balionoDuomenys"></dl>
+    </section>
+
+    <section class="card">
+      <h2>Sąlygos</h2>
+      <div class="grid2">
+        <label class="field">
+          <span>Oro temperatūra, °C</span>
+          <input id="temp" type="number" inputmode="decimal" step="0.5" value="10">
+        </label>
+        <label class="field">
+          <span>QNH, hPa</span>
+          <input id="qnh" type="number" inputmode="decimal" step="1" value="1019">
+        </label>
+        <label class="field">
+          <span>Kupolo temperatūra, °C</span>
+          <input id="kupoloTemp" type="number" inputmode="decimal" step="1" value="105">
+        </label>
+        <label class="field">
+          <span>Skrydžio aukštis, ft</span>
+          <input id="aukstis" type="number" inputmode="numeric" step="100" min="0" value="0">
+        </label>
+      </div>
+      <p class="hint">Aukštis 0 – skaičiuojama pakilimo sąlygoms (kaip Excel). Įvedus aukštį, temperatūra ir slėgis perskaičiuojami pagal ISA.</p>
+    </section>
+
+    <section class="card">
+      <h2>Skrydžio įgula</h2>
+      <div class="crew-head"><span>Vardas, pavardė</span><span>Svoris, kg</span><span></span></div>
+      <div class="crew-row pilot">
+        <input id="pilotoVardas" type="text" list="pilotai" placeholder="Pilotas" autocomplete="off">
+        <input id="pilotoSvoris" type="number" inputmode="decimal" min="0" step="1" placeholder="kg">
+        <button type="button" class="icon-btn" id="issaugotiPilota" title="Įsiminti pilotą šiame įrenginyje" aria-label="Įsiminti pilotą">★</button>
+      </div>
+      <datalist id="pilotai"></datalist>
+      <div id="keleiviai"></div>
+      <button type="button" class="btn-secondary" id="pridetiKeleivi">+ Pridėti keleivį</button>
+      <p class="sum-line">Įgula iš viso: <strong id="igulaViso">0 kg</strong></p>
+      <details class="saved" id="issaugotiPilotai">
+        <summary>Įsiminti pilotai</summary>
+        <p class="hint">Saugomi tik šiame įrenginyje, į internetą nesiunčiami.</p>
+        <ul id="pilotuSarasas"></ul>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>Kuras ir įranga</h2>
+      <div class="grid2">
+        <label class="field">
+          <span>Kuro talpų, vnt.</span>
+          <input id="talpuKiekis" type="number" inputmode="numeric" min="0" step="1" value="3">
+        </label>
+        <label class="field">
+          <span>Vienos pilnos talpos svoris, kg</span>
+          <input id="talposSvoris" type="number" inputmode="decimal" min="0" step="0.5" value="35">
+        </label>
+        <label class="field">
+          <span>Papildoma įranga, kg</span>
+          <input id="iranga" type="number" inputmode="decimal" min="0" step="1" value="15">
+        </label>
+      </div>
+    </section>
+
+    <section class="card result" id="rezultatas">
+      <h2>Maksimali keliamoji galia</h2>
+      <table class="breakdown">
+        <tbody id="svoriai"></tbody>
+      </table>
+      <div class="totals">
+        <div><span>Maksimali apskaičiuota keliamoji jėga</span><strong id="keliamoji">–</strong></div>
+        <div><span>Paskaičiuotas bendras svoris</span><strong id="bendras">–</strong></div>
+        <div class="margin"><span>Skirtumas (turi būti teigiamas)</span><strong id="skirtumas">–</strong></div>
+      </div>
+      <ul class="warnings" id="ispejimai"></ul>
+    </section>
+
+    <p class="disclaimer">Tai tik planavimo įrankis – jis nepakeičia gamintojo skrydžio vadovo apkrovos lentelių ir piloto sprendimo. Pagal Sauliaus Jezepčiko lentelę.</p>
+  </main>
+
+  <div class="status-bar" id="statusBar" aria-live="polite">
+    <span>Atsarga</span><strong id="statusValue">–</strong>
+  </div>
+
+  <template id="keleivioSablonas">
+    <div class="crew-row">
+      <input type="text" class="k-vardas" placeholder="Keleivis" autocomplete="off">
+      <input type="number" class="k-svoris" inputmode="decimal" min="0" step="1" placeholder="kg">
+      <button type="button" class="icon-btn k-salinti" title="Pašalinti" aria-label="Pašalinti keleivį">✕</button>
+    </div>
+  </template>
+
+  <script src="balionai.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
